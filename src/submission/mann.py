@@ -36,6 +36,15 @@ class MANN(nn.Module):
         """
         #############################
         ### START CODE HERE ###
+        N = self.num_classes
+        K = self.samples_per_class - 1
+        B = input_images.shape[0]
+        #concatenate the set of labels and images
+        concatenated_input = torch.cat((input_images.view(B, -1, 784+N), input_labels.view(B, -1, N * N)), dim=2)
+        
+        output, _ = self.layer1(concatenated_input)
+        output, _ = self.layer2(output)
+        output = output.view(output.shape[0], self.num_classes, self.num_classes)
         ### END CODE HERE ###
 
     def loss_function(self, preds, labels):
@@ -54,6 +63,7 @@ class MANN(nn.Module):
         loss = None
 
         ### START CODE HERE ###
+        loss = F.cross_entropy(preds[:, -1], labels[:, -1].argmax(dim=1))
         ### END CODE HERE ###
 
         return loss
