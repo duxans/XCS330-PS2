@@ -1,0 +1,8 @@
+.DS_store
+*.png
+omniglot_resized.zip
+*__pycache__/
+runs/*
+*.ipynb
+
+```

@@ -141,6 +141,47 @@ class DataGenerator(IterableDataset):
 
         #############################
         ### START CODE HERE ###
+        N = self.num_classes
+        K = self.num_samples_per_class - 1
+        
+        image = np.zeros((K + 1, N, 784))
+        label = np.zeros((K + 1, N, N))
+
+        #sampled N characters form train/val/test folders
+        sampled_classes = random.sample(self.folders, N)
+
+        #Load K+1 images per character and pair with corresponding labels for support set
+        support_set = get_images(sampled_classes, range(N), nb_samples=K+1)
+
+        #Extract the query set from support set
+        query_set = support_set[K::K+1]        
+        support_set =[i for i in support_set if i not in query_set]
+        
+        #shuffle the query set
+        shuffle_fn(query_set)
+
+        #Load the images and labels for support set
+        for i in range(K):
+            for j in range(N):
+                image[i, j] = self.image_file_to_array(support_set[j][1], self.dim_input)
+                label[i, j] = np.eye(N)[support_set[j][0]]
+                #print('Support set: ',label[i][j])
+
+        #Load the images and labels for query set
+        for j in range(N):
+            image[K, j] = self.image_file_to_array(query_set[j][1], self.dim_input)
+            label[K, j] = np.eye(N)[query_set[j][0]]
+            #print('Query set: ',label[K][j])
+
+        #convert numpy array type to float32
+        image = image.astype(np.float32)
+        label = label.astype(np.float32)
+
+        #convert numpy array to torch tensor (no need to convert to tensor)
+        #image = torch.from_numpy(image)
+        #label = torch.from_numpy(label)
+        
+        return image, label
         ### END CODE HERE ###
 
     def __iter__(self):
