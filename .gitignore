@@ -6,3 +6,5 @@ runs/*
 *.ipynb
 
 ```
+src/runs/*
+src/pad.txt

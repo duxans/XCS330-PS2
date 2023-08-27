@@ -36,15 +36,28 @@ class MANN(nn.Module):
         """
         #############################
         ### START CODE HERE ###
-        N = self.num_classes
+   
         K = self.samples_per_class - 1
         B = input_images.shape[0]
-        #concatenate the set of labels and images
-        concatenated_input = torch.cat((input_images.view(B, -1, 784+N), input_labels.view(B, -1, N * N)), dim=2)
+        N = self.num_classes
+
+        #Concatenate the set of labels and images and pass zeros for the final K+1th prediction      
+        concatenated_input = torch.cat((input_images.view(B, -1, 784), input_labels.view(B, -1, N)), dim=2)
+        concatenated_input = concatenated_input.view(B, K+1, N, 784+N)
         
-        output, _ = self.layer1(concatenated_input)
-        output, _ = self.layer2(output)
-        output = output.view(output.shape[0], self.num_classes, self.num_classes)
+        #Pass zeros for the final query prediction
+        concatenated_input[:, K,:,784:]= torch.zeros(B, N, N)
+
+        #Reshape for LSTM layer1 (batch, seq_len, feature)
+        concatenated_input = concatenated_input.view(B,(K+1)*N,784+N)
+        
+        output,_ = self.layer1(concatenated_input)
+        output,_ = self.layer2(output)
+
+        #Reshape the output to get the predictions as Description
+        predictions = output.view(B, K+1, N, N) 
+                      
+        return predictions      
         ### END CODE HERE ###
 
     def loss_function(self, preds, labels):
@@ -62,8 +75,16 @@ class MANN(nn.Module):
 
         loss = None
 
-        ### START CODE HERE ###
-        loss = F.cross_entropy(preds[:, -1], labels[:, -1].argmax(dim=1))
+        ### START CODE HERE ### 
+        K = self.samples_per_class - 1
+        N = self.num_classes
+        preds = preds[:,K,:]
+        labels = labels[:,K,:]
+      
+        preds = preds.reshape(-1, N)
+        labels = labels.reshape(-1, N)
+        loss = F.cross_entropy(preds, labels)
+        print('loss: ', loss)
         ### END CODE HERE ###
 
         return loss

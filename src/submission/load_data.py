@@ -178,8 +178,8 @@ class DataGenerator(IterableDataset):
         label = label.astype(np.float32)
 
         #convert numpy array to torch tensor (no need to convert to tensor)
-        #image = torch.from_numpy(image)
-        #label = torch.from_numpy(label)
+        image = torch.from_numpy(image)
+        label = torch.from_numpy(label)
         
         return image, label
         ### END CODE HERE ###
