@@ -8,3 +8,5 @@ runs/*
 ```
 src/runs/*
 src/pad.txt
+src/submission/mann_results_*
+src/submission/mann_results_*.zip

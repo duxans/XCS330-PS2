@@ -84,7 +84,6 @@ class MANN(nn.Module):
         preds = preds.reshape(-1, N)
         labels = labels.reshape(-1, N)
         loss = F.cross_entropy(preds, labels)
-        print('loss: ', loss)
         ### END CODE HERE ###
 
         return loss
